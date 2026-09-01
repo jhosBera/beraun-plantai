@@ -103,17 +103,17 @@ export const DiagnosisPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 w-full max-w-full overflow-hidden">
       {/* Header Banner */}
-      <div className="bg-[#00C2CB] p-6 sm:p-8 rounded-3xl border-3 border-black shadow-neo-xl flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="bg-[#00C2CB] p-4 sm:p-8 rounded-3xl border-3 border-black shadow-neo-xl flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="space-y-2">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-black text-white text-xs font-black rounded-lg">
-            <span>🔬 MÓDULO DEEP LEARNING (RF-06 - RF-09)</span>
+            <span>🔬 DIAGNÓSTICO CON IA</span>
           </div>
-          <h2 className="text-2xl sm:text-4xl font-black text-black tracking-tight">
+          <h2 className="text-xl sm:text-4xl font-black text-black tracking-tight">
             Diagnóstico Fitosanitario Inteligente
           </h2>
-          <p className="text-sm font-bold text-zinc-900 max-w-xl">
+          <p className="text-xs sm:text-sm font-bold text-zinc-900 max-w-xl">
             Toma una foto de la hoja afectada o sube una imagen de tu galería para detectar hongos, bacterias, virus o plagas con redes neuronales.
           </p>
         </div>
@@ -126,7 +126,7 @@ export const DiagnosisPage: React.FC = () => {
           <Card shadowColor="yellow" borderWidth="3" className="p-6 space-y-5">
             <h3 className="text-lg font-black text-black flex items-center gap-2">
               <Camera className="w-5 h-5 text-black" />
-              <span>1. Capturar o Subir Imagen (RF-06)</span>
+              <span>1. Capturar o Subir Imagen</span>
             </h3>
 
             {/* Associate with Crop Selection */}
@@ -237,7 +237,7 @@ export const DiagnosisPage: React.FC = () => {
                     className="flex-1"
                   >
                     <Sparkles className="w-5 h-5" />
-                    <span>Analizar con IA (RF-07)</span>
+                    <span>Analizar con IA</span>
                   </Button>
 
                   <Button
@@ -283,10 +283,10 @@ export const DiagnosisPage: React.FC = () => {
                   </p>
                 </div>
 
-                {/* RF-08 Confidence Score Gauge */}
+                {/* Confidence Score Gauge */}
                 <div className="bg-[#FFD200] p-4 rounded-2xl border-2 border-black shadow-neo-sm text-center shrink-0">
                   <span className="text-[10px] font-black uppercase text-black block">
-                    Nivel de Certeza (RF-08)
+                    Nivel de Certeza
                   </span>
                   <span className="text-3xl font-black text-black">
                     {diagnosisResult.confidence}%
@@ -357,7 +357,7 @@ export const DiagnosisPage: React.FC = () => {
                 </div>
               )}
 
-              {/* RF-11 Generate Treatment Plan with AI Assistant Button */}
+              {/* Generate Treatment Plan with AI Assistant Button */}
               <div className="pt-4 border-t-2 border-black">
                 <Button
                   variant="yellow"
@@ -367,30 +367,32 @@ export const DiagnosisPage: React.FC = () => {
                 >
                   <div className="flex items-center gap-2">
                     <BotMessageSquare className="w-5 h-5" />
-                    <span>Generar Plan de Acción & Ajustar Calendario con Asistente IA (RF-11, RF-12)</span>
+                    <span>Generar Plan de Acción & Ajustar Calendario con Asistente IA</span>
                   </div>
                   <ArrowRight className="w-5 h-5" />
                 </Button>
               </div>
             </Card>
           ) : (
-            <Card shadowColor="black" className="p-12 text-center space-y-4">
-              <div className="w-16 h-16 rounded-2xl bg-zinc-100 border-2 border-black mx-auto flex items-center justify-center text-3xl">
-                🍃
+            <Card shadowColor="yellow" className="p-8 text-center space-y-3">
+              <div className="w-14 h-14 rounded-2xl bg-[#FFD200] border-2 border-black mx-auto flex items-center justify-center text-2xl shadow-neo-sm">
+                🔍
               </div>
-              <h3 className="text-xl font-black text-black">Esperando imagen para análisis</h3>
-              <p className="text-xs font-bold text-zinc-500 max-w-md mx-auto">
-                Sube una fotografía nítida de la hoja o fruto para que la red neuronal identifique automáticamente el patógeno y su severidad.
+              <h4 className="text-base font-black text-black">Aún no has seleccionado o analizado una hoja</h4>
+              <p className="text-xs font-bold text-zinc-600 max-w-sm mx-auto">
+                Sube una imagen o toma una foto desde tu dispositivo para obtener un diagnóstico con redes neuronales.
               </p>
             </Card>
           )}
 
-          {/* Past Diagnoses History (RF-09) */}
-          <div className="space-y-4 pt-4">
-            <h3 className="text-lg font-black text-black flex items-center gap-2">
-              <History className="w-5 h-5 text-black" />
-              <span>Historial de Diagnósticos Realizados (RF-09)</span>
-            </h3>
+          {/* Past Diagnoses History */}
+          <Card shadowColor="black" borderWidth="3" className="p-6 space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b-2 border-black">
+              <h3 className="text-base font-black text-black flex items-center gap-2">
+                <History className="w-4 h-4 text-black" />
+                <span>Historial de Diagnósticos Realizados</span>
+              </h3>
+            </div>
 
             {loadingHistory ? (
               <div className="p-6 text-center text-xs font-bold text-zinc-500">
@@ -440,7 +442,7 @@ export const DiagnosisPage: React.FC = () => {
                 ))}
               </div>
             )}
-          </div>
+          </Card>
         </div>
       </div>
     </div>

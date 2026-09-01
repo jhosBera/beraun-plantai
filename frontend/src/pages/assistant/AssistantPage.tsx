@@ -132,21 +132,21 @@ export const AssistantPage: React.FC = () => {
   };
 
   const quickPrompts = [
-    "💧 ¿Cómo ajustar el riego si mi cultivo tiene síntomas de hongo foliar? (RF-12)",
-    "💊 Recomiéndame un plan de fungicida orgánico y químico con dosis (RF-11)",
+    "💧 ¿Cómo ajustar el riego si mi cultivo tiene síntomas de hongo foliar?",
+    "💊 Recomiéndame un plan de fungicida orgánico y químico con dosis",
     "🧪 ¿Qué fertilizante aplicar para estimular la floración y cuajado?",
     "🦟 ¿Cómo controlar la plaga de mosca blanca y pulgones sin dañar polinizadores?"
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 w-full max-w-full overflow-hidden">
       {/* Header Banner */}
-      <div className="bg-[#FFD200] p-6 rounded-3xl border-3 border-black shadow-neo-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-[#FFD200] p-4 sm:p-6 rounded-3xl border-3 border-black shadow-neo-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="inline-flex items-center gap-1.5 px-3 py-0.5 bg-black text-white text-xs font-black rounded-lg">
-            <span>🤖 ASISTENTE BOTÁNICO (RF-10, RF-11, RF-12)</span>
+            <span>🤖 ASISTENTE BOTÁNICO</span>
           </div>
-          <h2 className="text-2xl sm:text-3xl font-black text-black tracking-tight">
+          <h2 className="text-xl sm:text-3xl font-black text-black tracking-tight">
             Consultorio Agronómico con Inteligencia Artificial
           </h2>
           <p className="text-xs font-bold text-zinc-900">
@@ -166,9 +166,9 @@ export const AssistantPage: React.FC = () => {
       </div>
 
       {/* Main Chat Layout: Sidebar Sessions + Chat Feed */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[72vh]">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[500px] h-[calc(100vh-250px)]">
         {/* Sessions Sidebar (4 cols) */}
-        <Card shadowColor="black" borderWidth="2" className="lg:col-span-4 p-4 flex flex-col h-full overflow-hidden">
+        <Card shadowColor="black" borderWidth="2" className="lg:col-span-4 p-4 flex flex-col h-full overflow-hidden min-h-[200px]">
           <div className="flex items-center justify-between pb-3 border-b-2 border-black">
             <span className="text-xs font-black text-black uppercase tracking-wider">
               Historial de Consultas

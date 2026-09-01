@@ -39,13 +39,20 @@ export const Register: React.FC = () => {
       await register(formData);
       navigate('/');
     } catch (err: any) {
-      const data = err.response?.data;
-      if (typeof data === 'object') {
-        const firstKey = Object.keys(data)[0];
-        const val = data[firstKey];
-        setError(`${firstKey}: ${Array.isArray(val) ? val[0] : val}`);
+      if (!err.response) {
+        setError('No se pudo conectar con el servidor. Asegúrate de que los contenedores de Docker estén en ejecución.');
       } else {
-        setError('Error al registrar usuario. Verifica los campos.');
+        const data = err.response?.data;
+        if (data && typeof data === 'object' && !Array.isArray(data)) {
+          const firstKey = Object.keys(data)[0];
+          const val = data[firstKey];
+          const errorMsg = Array.isArray(val) ? val.join(', ') : val;
+          setError(`${firstKey}: ${errorMsg}`);
+        } else if (typeof data === 'string') {
+          setError(data);
+        } else {
+          setError('Error al registrar usuario. Verifica los campos.');
+        }
       }
     } finally {
       setLoading(false);

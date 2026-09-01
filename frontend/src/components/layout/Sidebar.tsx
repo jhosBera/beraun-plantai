@@ -12,7 +12,12 @@ import {
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 
-export const Sidebar: React.FC = () => {
+interface SidebarProps {
+  isOpen?: boolean;
+  onClose?: () => void;
+}
+
+export const Sidebar: React.FC<SidebarProps> = ({ isOpen = false, onClose }) => {
   const { logout } = useAuthStore();
   const navigate = useNavigate();
 
@@ -30,8 +35,8 @@ export const Sidebar: React.FC = () => {
     navigate('/login');
   };
 
-  return (
-    <aside className="w-64 bg-white border-r-3 border-black flex flex-col justify-between p-4 shrink-0 min-h-screen">
+  const sidebarContent = (
+    <div className="flex flex-col justify-between h-full p-4">
       <div className="space-y-6">
         {/* Brand Logo & Title */}
         <div className="p-3 bg-[#FDFBF7] rounded-2xl border-2 border-black shadow-neo">
@@ -51,6 +56,7 @@ export const Sidebar: React.FC = () => {
               key={item.to}
               to={item.to}
               end={item.exact}
+              onClick={() => onClose && onClose()}
               className={({ isActive }) =>
                 `flex items-center justify-between px-3.5 py-2.5 rounded-xl font-black text-xs border-2 border-black transition-all ${
                   isActive
@@ -93,6 +99,28 @@ export const Sidebar: React.FC = () => {
           <span>Cerrar Sesión</span>
         </button>
       </div>
-    </aside>
+    </div>
+  );
+
+  return (
+    <>
+      {/* Desktop Persistent Sidebar */}
+      <aside className="w-64 bg-white border-r-3 border-black hidden lg:flex flex-col shrink-0 min-h-screen">
+        {sidebarContent}
+      </aside>
+
+      {/* Mobile Drawer Overlay */}
+      {isOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden flex">
+          <div
+            className="fixed inset-0 bg-black/50 backdrop-blur-xs transition-opacity"
+            onClick={onClose}
+          />
+          <aside className="relative w-64 max-w-[80vw] bg-white border-r-3 border-black h-full z-10 shadow-neo-xl overflow-y-auto">
+            {sidebarContent}
+          </aside>
+        </div>
+      )}
+    </>
   );
 };

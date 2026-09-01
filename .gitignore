@@ -54,3 +54,7 @@ Thumbs.db
 .vscode/
 *.swp
 *.swo
+
+# Celery
+celerybeat-schedule*
+backend/celerybeat-schedule*

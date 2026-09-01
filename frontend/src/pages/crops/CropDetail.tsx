@@ -182,7 +182,7 @@ export const CropDetail: React.FC = () => {
             onClick={handleDownloadPDF}
           >
             <FileDown className="w-4 h-4" />
-            <span>Descargar Reporte PDF (RF-13)</span>
+            <span>Descargar Reporte PDF</span>
           </Button>
 
           <Button
@@ -259,14 +259,14 @@ export const CropDetail: React.FC = () => {
       <div className="flex flex-wrap gap-2 border-b-2 border-black pb-2">
         <button
           onClick={() => setActiveTab('care')}
-          className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-black text-xs border-2 border-black transition-all ${
+          className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl font-black text-xs border-2 border-black transition-all ${
             activeTab === 'care'
               ? 'bg-[#FFD200] text-black shadow-neo'
               : 'bg-white text-zinc-700 hover:bg-zinc-100'
           }`}
         >
           <History className="w-4 h-4" />
-          <span>Historial de Cuidados (RF-04)</span>
+          <span>Historial de Cuidados</span>
           <span className="ml-1 px-1.5 py-0.5 rounded bg-black text-white text-[10px]">
             {selectedCrop.care_events?.length || 0}
           </span>
@@ -274,14 +274,14 @@ export const CropDetail: React.FC = () => {
 
         <button
           onClick={() => setActiveTab('status')}
-          className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-black text-xs border-2 border-black transition-all ${
+          className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl font-black text-xs border-2 border-black transition-all ${
             activeTab === 'status'
               ? 'bg-[#00C2CB] text-black shadow-neo'
               : 'bg-white text-zinc-700 hover:bg-zinc-100'
           }`}
         >
           <Activity className="w-4 h-4" />
-          <span>Bitácora de Estado (RF-05)</span>
+          <span>Bitácora de Estado</span>
           <span className="ml-1 px-1.5 py-0.5 rounded bg-black text-white text-[10px]">
             {selectedCrop.status_logs?.length || 0}
           </span>
@@ -289,21 +289,21 @@ export const CropDetail: React.FC = () => {
 
         <button
           onClick={() => setActiveTab('diagnoses')}
-          className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-black text-xs border-2 border-black transition-all ${
+          className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl font-black text-xs border-2 border-black transition-all ${
             activeTab === 'diagnoses'
               ? 'bg-[#22C55E] text-black shadow-neo'
               : 'bg-white text-zinc-700 hover:bg-zinc-100'
           }`}
         >
           <ScanSearch className="w-4 h-4" />
-          <span>Diagnósticos Fitosanitarios (RF-09)</span>
+          <span>Diagnósticos Fitosanitarios</span>
           <span className="ml-1 px-1.5 py-0.5 rounded bg-black text-white text-[10px]">
             {diagnoses.length}
           </span>
         </button>
       </div>
 
-      {/* Tab 1: Historial de Cuidados (RF-04) */}
+      {/* Tab 1: Historial de Cuidados */}
       {activeTab === 'care' && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
@@ -316,7 +316,7 @@ export const CropDetail: React.FC = () => {
               onClick={() => setIsCareModalOpen(true)}
             >
               <Plus className="w-4 h-4" />
-              <span>Registrar Cuidado (RF-04)</span>
+              <span>Registrar Cuidado</span>
             </Button>
           </div>
 
@@ -354,7 +354,7 @@ export const CropDetail: React.FC = () => {
         </div>
       )}
 
-      {/* Tab 2: Bitácora de Estado (RF-05) */}
+      {/* Tab 2: Bitácora de Estado */}
       {activeTab === 'status' && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
@@ -367,7 +367,7 @@ export const CropDetail: React.FC = () => {
               onClick={() => setIsStatusModalOpen(true)}
             >
               <Plus className="w-4 h-4" />
-              <span>Nueva Entrada en Bitácora (RF-05)</span>
+              <span>Nueva Entrada en Bitácora</span>
             </Button>
           </div>
 
@@ -415,7 +415,7 @@ export const CropDetail: React.FC = () => {
         </div>
       )}
 
-      {/* Tab 3: Diagnósticos Fitosanitarios (RF-09) */}
+      {/* Tab 3: Diagnósticos Fitosanitarios */}
       {activeTab === 'diagnoses' && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
@@ -485,11 +485,11 @@ export const CropDetail: React.FC = () => {
         </div>
       )}
 
-      {/* Modal Registrar Cuidado (RF-04) */}
+      {/* Modal Registrar Cuidado */}
       <Modal
         isOpen={isCareModalOpen}
         onClose={() => setIsCareModalOpen(false)}
-        title="Registrar Evento de Cuidado (RF-04)"
+        title="Registrar Evento de Cuidado"
       >
         <form onSubmit={handleCreateCareEvent} className="space-y-4">
           <div>
@@ -590,11 +590,11 @@ export const CropDetail: React.FC = () => {
         </form>
       </Modal>
 
-      {/* Modal Registrar Entrada de Bitácora (RF-05) */}
+      {/* Modal Registrar Entrada de Bitácora */}
       <Modal
         isOpen={isStatusModalOpen}
         onClose={() => setIsStatusModalOpen(false)}
-        title="Nueva Entrada en Bitácora de Estado (RF-05)"
+        title="Nueva Entrada en Bitácora de Estado"
       >
         <form onSubmit={handleCreateStatusLog} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

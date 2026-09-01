@@ -98,14 +98,14 @@ export const PlotsList: React.FC = () => {
   const commonSpecies = ['Tomate', 'Papa', 'Café', 'Maíz', 'Pimiento', 'Vid / Uva', 'Manzano', 'Cacao', 'Fresa', 'Cebolla'];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 w-full max-w-full overflow-hidden">
       {/* Header Section */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-black tracking-tight text-black flex items-center gap-2">
+          <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-black flex items-center gap-2">
             <span>🗺️</span> Parcelas y Cultivos
           </h2>
-          <p className="text-sm font-bold text-zinc-600">
+          <p className="text-xs sm:text-sm font-bold text-zinc-600">
             Administra tus sectores de siembra y el registro de plantas registradas
           </p>
         </div>
@@ -132,7 +132,7 @@ export const PlotsList: React.FC = () => {
             disabled={plots.length === 0}
           >
             <Plus className="w-4 h-4" />
-            <span>Registrar Cultivo (RF-03)</span>
+            <span>Registrar Cultivo</span>
           </Button>
         </div>
       </div>
@@ -353,11 +353,11 @@ export const PlotsList: React.FC = () => {
         </form>
       </Modal>
 
-      {/* Modal Crear Cultivo (RF-03) */}
+      {/* Modal Crear Cultivo */}
       <Modal
         isOpen={isCropModalOpen}
         onClose={() => setIsCropModalOpen(false)}
-        title="Registrar Nuevo Cultivo (RF-03)"
+        title="Registrar Nuevo Cultivo"
       >
         <form onSubmit={handleCreateCrop} className="space-y-4">
           <div>

@@ -1,20 +1,32 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Bell, Sparkles, User as UserIcon, LogOut, CheckCheck } from 'lucide-react';
+import { Bell, Sparkles, User as UserIcon, LogOut, CheckCheck, Menu } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useNotificationStore } from '../../store/notificationStore';
 import { Button } from '../ui/Button';
 
-export const Navbar: React.FC = () => {
+interface NavbarProps {
+  onMenuClick?: () => void;
+}
+
+export const Navbar: React.FC<NavbarProps> = ({ onMenuClick }) => {
   const { user, logout } = useAuthStore();
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotificationStore();
   const [showNotifications, setShowNotifications] = useState(false);
   const navigate = useNavigate();
 
   return (
-    <header className="sticky top-0 z-30 flex items-center justify-between px-6 py-3.5 bg-white border-b-3 border-black">
-      <div className="flex items-center gap-4">
-        <h1 className="text-xl font-black tracking-tight text-black flex items-center gap-2">
+    <header className="sticky top-0 z-30 flex items-center justify-between px-4 sm:px-6 py-3.5 bg-white border-b-3 border-black">
+      <div className="flex items-center gap-3">
+        <button
+          onClick={onMenuClick}
+          className="p-2 bg-[#F5F0EA] rounded-xl border-2 border-black shadow-neo-sm lg:hidden hover:bg-amber-100 transition-colors"
+          title="Menú Principal"
+        >
+          <Menu className="w-5 h-5 text-black" />
+        </button>
+
+        <h1 className="text-lg sm:text-xl font-black tracking-tight text-black flex items-center gap-2">
           <span className="bg-[#22C55E] text-black px-2 py-0.5 rounded-lg border-2 border-black shadow-neo-sm">
             🌱 BERAUN
           </span>

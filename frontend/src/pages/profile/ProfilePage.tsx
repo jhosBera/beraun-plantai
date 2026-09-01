@@ -70,14 +70,14 @@ export const ProfilePage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-8 max-w-4xl mx-auto">
+    <div className="space-y-8 max-w-4xl w-full mx-auto overflow-hidden">
       {/* Header Banner */}
-      <div className="bg-[#FFD200] p-6 sm:p-8 rounded-3xl border-3 border-black shadow-neo-xl flex items-center justify-between gap-4">
+      <div className="bg-[#FFD200] p-4 sm:p-8 rounded-3xl border-3 border-black shadow-neo-xl flex items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="inline-flex items-center gap-1.5 px-3 py-0.5 bg-black text-white text-xs font-black rounded-lg">
-            <span>👤 MÓDULO 1 (RF-02)</span>
+            <span>👤 CONFIGURACIÓN DE PERFIL</span>
           </div>
-          <h2 className="text-2xl sm:text-3xl font-black text-black tracking-tight">
+          <h2 className="text-xl sm:text-3xl font-black text-black tracking-tight">
             Gestión de Perfil y Preferencias
           </h2>
           <p className="text-xs font-bold text-zinc-900">
@@ -179,11 +179,11 @@ export const ProfilePage: React.FC = () => {
           </div>
         </Card>
 
-        {/* Notification Preferences (RF-02) */}
+        {/* Notification Preferences */}
         <Card shadowColor="yellow" borderWidth="3" className="p-6 sm:p-8 space-y-6">
           <h3 className="text-lg font-black text-black flex items-center gap-2 pb-3 border-b-2 border-black">
             <Bell className="w-5 h-5 text-black" />
-            <span>2. Preferencias de Notificación (RF-02)</span>
+            <span>2. Preferencias de Notificación</span>
           </h3>
 
           <div className="space-y-3">
@@ -251,7 +251,7 @@ export const ProfilePage: React.FC = () => {
           className="w-full"
         >
           <Save className="w-5 h-5" />
-          <span>Guardar Cambios de Perfil (RF-02)</span>
+          <span>Guardar Cambios de Perfil</span>
         </Button>
       </form>
     </div>

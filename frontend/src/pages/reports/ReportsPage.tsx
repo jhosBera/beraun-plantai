@@ -114,17 +114,17 @@ export const ReportsPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 w-full max-w-full overflow-hidden">
       {/* Header Banner */}
-      <div className="bg-[#22C55E] p-6 sm:p-8 rounded-3xl border-3 border-black shadow-neo-xl flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="bg-[#22C55E] p-4 sm:p-8 rounded-3xl border-3 border-black shadow-neo-xl flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="space-y-2">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-black text-white text-xs font-black rounded-lg">
-            <span>📊 MÓDULO 5 (RF-13, RF-14)</span>
+            <span>📊 REPORTES Y ALERTAS</span>
           </div>
-          <h2 className="text-2xl sm:text-4xl font-black text-black tracking-tight">
+          <h2 className="text-xl sm:text-4xl font-black text-black tracking-tight">
             Reportes y Alertas de Cuidado
           </h2>
-          <p className="text-sm font-bold text-zinc-900 max-w-xl">
+          <p className="text-xs sm:text-sm font-bold text-zinc-900 max-w-xl">
             Exporta historiales de salud en formato PDF profesional e implementa recordatorios periódicos para riego y aplicaciones sanitarias.
           </p>
         </div>
@@ -133,11 +133,11 @@ export const ReportsPage: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Left Column: PDF Report Generator & In-App Notifications (5 cols) */}
         <div className="lg:col-span-5 space-y-6">
-          {/* RF-13 Exportación de Reportes PDF Card */}
+          {/* Exportación de Reportes PDF Card */}
           <Card shadowColor="yellow" borderWidth="3" className="p-6 space-y-4">
             <h3 className="text-lg font-black text-black flex items-center gap-2">
               <FileDown className="w-5 h-5 text-black" />
-              <span>1. Descarga de Reportes PDF (RF-13)</span>
+              <span>1. Descarga de Reportes PDF</span>
             </h3>
             <p className="text-xs font-bold text-zinc-600">
               Genera un documento imprimible con el historial agronómico, diagnósticos de IA y registros de evolución de tu cultivo.
@@ -169,12 +169,12 @@ export const ReportsPage: React.FC = () => {
                 className="w-full"
               >
                 <FileDown className="w-5 h-5" />
-                <span>Exportar Informe PDF (RF-13)</span>
+                <span>Exportar Informe PDF</span>
               </Button>
             </div>
           </Card>
 
-          {/* In-App Notifications Feed (RF-14) */}
+          {/* In-App Notifications Feed */}
           <Card shadowColor="teal" borderWidth="2" className="p-6 space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-base font-black text-black flex items-center gap-2">
@@ -226,7 +226,7 @@ export const ReportsPage: React.FC = () => {
               <div>
                 <h3 className="text-xl font-black text-black flex items-center gap-2">
                   <Calendar className="w-5 h-5 text-black" />
-                  <span>2. Programación de Alertas de Cuidado (RF-14)</span>
+                  <span>2. Programación de Alertas de Cuidado</span>
                 </h3>
                 <p className="text-xs font-bold text-zinc-600 mt-0.5">
                   Automatizadas mediante Celery Beat con notificaciones programadas
@@ -323,11 +323,11 @@ export const ReportsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Modal Programar Alerta (RF-14) */}
+      {/* Modal Programar Alerta */}
       <Modal
         isOpen={isAlertModalOpen}
         onClose={() => setIsAlertModalOpen(false)}
-        title="Programar Recordatorio de Cuidado (RF-14)"
+        title="Programar Recordatorio de Cuidado"
       >
         <form onSubmit={handleCreateAlert} className="space-y-4">
           <div>
@@ -430,7 +430,7 @@ export const ReportsPage: React.FC = () => {
             isLoading={creatingAlert}
             className="w-full mt-2"
           >
-            Guardar y Programar Alerta (RF-14)
+            Guardar y Programar Alerta
           </Button>
         </form>
       </Modal>
