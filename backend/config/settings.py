@@ -168,7 +168,12 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = TIME_ZONE
 
-# DeepSeek API Configuration
+# AI Model Configuration (Groq / DeepSeek / Ollama)
+GROQ_API_KEY = os.getenv('GROQ_API_KEY', '')
+LLM_PROVIDER = os.getenv('LLM_PROVIDER', 'groq')
+LLM_MODEL = os.getenv('LLM_MODEL', 'qwen/qwen3.8-27b')
+LLM_API_URL = os.getenv('LLM_API_URL', 'https://api.groq.com/openai/v1')
+
 DEEPSEEK_API_KEY = os.getenv('DEEPSEEK_API_KEY', '')
 DEEPSEEK_API_URL = os.getenv('DEEPSEEK_API_URL', 'https://api.deepseek.com')
 

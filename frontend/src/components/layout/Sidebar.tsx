@@ -25,7 +25,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen = false, onClose }) => 
     { to: '/', label: 'Dashboard', icon: LayoutDashboard, exact: true },
     { to: '/crops', label: 'Parcelas y Cultivos', icon: Sprout },
     { to: '/diagnosis', label: 'Diagnóstico IA', icon: ScanSearch, badge: 'Deep Learning' },
-    { to: '/assistant', label: 'Asistente Botánico', icon: BotMessageSquare, badge: 'DeepSeek' },
+    { to: '/assistant', label: 'Asistente Botánico', icon: BotMessageSquare, badge: 'Qwen 3.8' },
     { to: '/reports', label: 'Reportes y Alertas', icon: FileBarChart2 },
     { to: '/profile', label: 'Mi Perfil', icon: User },
   ];
@@ -70,7 +70,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen = false, onClose }) => 
                 <span>{item.label}</span>
               </div>
               {item.badge && (
-                <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-black text-white">
+                <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-black text-white shrink-0 whitespace-nowrap">
                   {item.badge}
                 </span>
               )}

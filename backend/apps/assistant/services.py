@@ -5,19 +5,39 @@ from .prompts import SYSTEM_PROMPT_AGRONOMIST
 
 class DeepSeekChatService:
     """
-    Servicio de integración con la API de DeepSeek para el Chatbot Asesor (RF-10, RF-11, RF-12).
+    Servicio multi-proveedor de integración con IA (Groq, DeepSeek, Ollama, OpenRouter) 
+    para el Chatbot Asesor Botánico (RF-10, RF-11, RF-12).
     """
-    def __init__(self):
-        self.api_key = getattr(settings, 'DEEPSEEK_API_KEY', '') or os.getenv('DEEPSEEK_API_KEY', '')
-        self.api_url = getattr(settings, 'DEEPSEEK_API_URL', 'https://api.deepseek.com')
+    @property
+    def api_key(self) -> str:
+        return (
+            getattr(settings, 'GROQ_API_KEY', '') or os.getenv('GROQ_API_KEY', '') or
+            getattr(settings, 'LLM_API_KEY', '') or os.getenv('LLM_API_KEY', '') or
+            getattr(settings, 'DEEPSEEK_API_KEY', '') or os.getenv('DEEPSEEK_API_KEY', '')
+        )
+
+    @property
+    def api_url(self) -> str:
+        url = (
+            getattr(settings, 'LLM_API_URL', '') or os.getenv('LLM_API_URL', '') or
+            ('https://api.groq.com/openai/v1' if self.api_key.startswith('gsk_') or os.getenv('LLM_PROVIDER') == 'groq' else 'https://api.deepseek.com')
+        )
+        return url.rstrip('/')
+
+    @property
+    def model(self) -> str:
+        return (
+            getattr(settings, 'LLM_MODEL', '') or os.getenv('LLM_MODEL', '') or
+            ("qwen/qwen3.8-27b" if "groq.com" in self.api_url or self.api_key.startswith("gsk_") else "deepseek-chat")
+        )
 
     def generate_response(self, conversation_history: list[dict], extra_system_context: str = "") -> str:
         """
-        Envía el historial de la conversación al modelo deepseek-chat.
+        Envía el historial de la conversación al modelo de IA seleccionado (Groq / DeepSeek / Ollama).
         """
         system_content = SYSTEM_PROMPT_AGRONOMIST
         if extra_system_context:
-            system_content += f"\n\nContexto adicional del diagnóstico:\n{extra_system_context}"
+            system_content += f"\n\nContexto adicional del diagnóstico/cultivo:\n{extra_system_context}"
 
         messages = [{"role": "system", "content": system_content}]
 
@@ -29,26 +49,29 @@ class DeepSeekChatService:
                     "content": msg.get("content", "")
                 })
 
-        if not self.api_key:
+        if not self.api_key and "localhost" not in self.api_url and "127.0.0.1" not in self.api_url:
             return self._generate_offline_response(conversation_history[-1]["content"] if conversation_history else "")
 
         headers = {
-            "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json"
         }
+        if self.api_key:
+            headers["Authorization"] = f"Bearer {self.api_key}"
+
+        endpoint = f"{self.api_url}/chat/completions" if not self.api_url.endswith("/chat/completions") else self.api_url
 
         payload = {
-            "model": "deepseek-chat",
+            "model": self.model,
             "messages": messages,
-            "temperature": 0.7,
-            "max_tokens": 1200,
+            "temperature": 0.6,
+            "max_tokens": 1500,
             "stream": False
         }
 
         try:
-            with httpx.Client(timeout=30.0) as client:
+            with httpx.Client(timeout=35.0) as client:
                 response = client.post(
-                    f"{self.api_url}/chat/completions",
+                    endpoint,
                     json=payload,
                     headers=headers
                 )
@@ -56,10 +79,10 @@ class DeepSeekChatService:
                     data = response.json()
                     return data["choices"][0]["message"]["content"]
                 else:
-                    print(f"Error DeepSeek API status {response.status_code}: {response.text}")
+                    print(f"Error API Status {response.status_code} ({self.api_url}): {response.text}")
                     return self._generate_offline_response(conversation_history[-1]["content"] if conversation_history else "")
         except Exception as e:
-            print(f"Excepción conectando a DeepSeek API: {e}")
+            print(f"Excepción conectando a API de IA ({self.api_url}): {e}")
             return self._generate_offline_response(conversation_history[-1]["content"] if conversation_history else "")
 
     def _generate_offline_response(self, last_query: str) -> str:
