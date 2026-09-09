@@ -60,30 +60,46 @@ class DeepSeekChatService:
 
         endpoint = f"{self.api_url}/chat/completions" if not self.api_url.endswith("/chat/completions") else self.api_url
 
-        payload = {
-            "model": self.model,
-            "messages": messages,
-            "temperature": 0.6,
-            "max_tokens": 1500,
-            "stream": False
-        }
+        # Modelos candidatos para reintento en caso de rate limit (429) o incompatibilidad
+        candidate_models = [self.model]
+        if "groq.com" in self.api_url:
+            for fallback in ["llama-3.3-70b-versatile", "llama-3.1-8b-instant", "qwen/qwen3.8-27b"]:
+                if fallback not in candidate_models:
+                    candidate_models.append(fallback)
 
-        try:
-            with httpx.Client(timeout=35.0) as client:
-                response = client.post(
-                    endpoint,
-                    json=payload,
-                    headers=headers
-                )
-                if response.status_code == 200:
-                    data = response.json()
-                    return data["choices"][0]["message"]["content"]
-                else:
-                    print(f"Error API Status {response.status_code} ({self.api_url}): {response.text}")
-                    return self._generate_offline_response(conversation_history[-1]["content"] if conversation_history else "")
-        except Exception as e:
-            print(f"Excepción conectando a API de IA ({self.api_url}): {e}")
-            return self._generate_offline_response(conversation_history[-1]["content"] if conversation_history else "")
+        max_tokens_val = int(getattr(settings, 'LLM_MAX_TOKENS', 800) or os.getenv('LLM_MAX_TOKENS', 800))
+
+        with httpx.Client(timeout=35.0) as client:
+            for current_model in candidate_models:
+                # Si es qwen3.8 en Groq on-demand, el límite de OTPM es 1000 tokens/min
+                tokens_limit = min(max_tokens_val, 800) if "qwen" in current_model.lower() else max_tokens_val
+
+                payload = {
+                    "model": current_model,
+                    "messages": messages,
+                    "temperature": 0.6,
+                    "max_tokens": tokens_limit,
+                    "stream": False
+                }
+
+                try:
+                    response = client.post(
+                        endpoint,
+                        json=payload,
+                        headers=headers
+                    )
+                    if response.status_code == 200:
+                        data = response.json()
+                        return data["choices"][0]["message"]["content"]
+                    else:
+                        print(f"Advertencia API Status {response.status_code} con modelo {current_model}: {response.text}")
+                        # Si es 429 o 400/404, continúa al siguiente modelo candidato
+                        continue
+                except Exception as e:
+                    print(f"Excepción conectando a API de IA ({current_model}): {e}")
+                    continue
+
+        return self._generate_offline_response(conversation_history[-1]["content"] if conversation_history else "")
 
     def _generate_offline_response(self, last_query: str) -> str:
         """
