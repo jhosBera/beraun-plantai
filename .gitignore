@@ -55,6 +55,14 @@ Thumbs.db
 *.swp
 *.swo
 
+# Keys & Secrets
+*.pem
+*.key
+*.ppk
+
+# Documents & Temp
+*.pdf
+
 # Celery
 celerybeat-schedule*
 backend/celerybeat-schedule*

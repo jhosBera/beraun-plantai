@@ -8,11 +8,12 @@ Plataforma integral de gestión agrícola con diagnóstico fitosanitario basado 
 
 - **Backend**: Python 3.11, Django 5.0, Django REST Framework, SimpleJWT (Autenticación sin estado)
 - **Deep Learning**: PyTorch 2.2, torchvision (Clasificación de 38 clases con dataset PlantVillage)
-- **Asistente IA**: DeepSeek API (`deepseek-chat`) para formulación de tratamientos y ajustes de calendario
+- **Asistente IA**: Integración multi-proveedor con **Groq API** (`qwen/qwen3.8-27b`), **DeepSeek** y **Ollama** para formulación de tratamientos, planes de acción fitosanitarios y respuestas agronómicas en Markdown
 - **Base de Datos**: PostgreSQL 15 (Persistencia relacional en Docker)
 - **Asincronía & Tareas**: Redis 7 + Celery Worker + Celery Beat (Recordatorios y alertas automáticas)
 - **Reportes**: ReportLab (Generador de PDF para historiales de salud)
-- **Frontend**: React 18 + TypeScript + Vite + Tailwind CSS + Lucide Icons (Sistema de Diseño Neo-Brutalista)
+- **Frontend**: React 18 + TypeScript + Vite + Tailwind CSS + Lucide Icons (Sistema de Diseño Neo-Brutalista con soporte para Markdown y renderizado enriquecido)
+- **Servidor Web & Proxy**: Nginx con soporte SSL / HTTPS (Let's Encrypt)
 - **Contenedores**: Docker & Docker Compose multi-contenedor (6 microservicios)
 
 ---
@@ -55,8 +56,13 @@ docker compose up -d --build
 docker compose ps
 ```
 
-### 3. Acceder a las aplicaciones
-- 🌐 **Frontend (Web App)**: [http://localhost](http://localhost) (o [http://localhost:5173](http://localhost:5173) en modo Vite)
+### 3. Cargar datos de prueba (Demo Seed Data)
+```bash
+docker compose exec backend python manage.py seed_demo_data
+```
+
+### 4. Acceder a las aplicaciones
+- 🌐 **Frontend (Web App)**: [http://localhost](http://localhost) (o [http://localhost:5173](http://localhost:5173) en modo desarrollo)
 - 🔌 **API REST Swagger Docs**: [http://localhost:8000/api/docs/](http://localhost:8000/api/docs/)
 - ⚙️ **Panel de Administración Django**: [http://localhost:8000/admin/](http://localhost:8000/admin/)
 
