@@ -91,12 +91,11 @@ class BotanicalAIService:
 
                 client = genai.Client(api_key=api_key)
                 preferred_models = [
-                    "gemini-2.5-flash",
-                    "gemini-flash-latest",
-                    "gemini-3.7-flash",
                     "gemini-3.6-flash",
+                    "gemini-3.7-flash",
+                    "gemini-3.8-flash",
                     "gemini-3.5-flash",
-                    "gemini-2.5-flash-lite",
+                    "gemini-flash-latest",
                 ]
 
                 response = None
@@ -130,11 +129,11 @@ class BotanicalAIService:
 
                 b64_img = base64.b64encode(optimized_bytes).decode('utf-8')
                 http_models = [
-                    "gemini-2.5-flash",
-                    "gemini-flash-latest",
+                    "gemini-3.6-flash",
                     "gemini-3.7-flash",
+                    "gemini-3.8-flash",
                     "gemini-3.5-flash",
-                    "gemini-2.5-flash-lite",
+                    "gemini-flash-latest",
                 ]
 
                 with httpx.Client(timeout=35.0) as client:
