@@ -47,6 +47,9 @@ class CollectedPlantSerializer(serializers.ModelSerializer):
         return None
 
 class CollectedPlantCreateSerializer(serializers.ModelSerializer):
+    toxicity_pets = serializers.CharField(required=False, default='false')
+    toxicity_humans = serializers.CharField(required=False, default='false')
+
     class Meta:
         model = CollectedPlant
         fields = [
@@ -70,6 +73,22 @@ class CollectedPlantCreateSerializer(serializers.ModelSerializer):
             'user_notes',
             'location_found',
         ]
+
+    def validate_toxicity_pets(self, value):
+        if isinstance(value, bool):
+            return value
+        return str(value).lower() in ['true', '1', 't', 'yes', 'si', 'tóxica', 'toxica']
+
+    def validate_toxicity_humans(self, value):
+        if isinstance(value, bool):
+            return value
+        return str(value).lower() in ['true', '1', 't', 'yes', 'si', 'tóxica', 'toxica']
+
+    def validate_confidence(self, value):
+        try:
+            return float(value)
+        except (ValueError, TypeError):
+            return 0.95
 
 class PlantIdentifyRequestSerializer(serializers.Serializer):
     image = serializers.ImageField(required=True)

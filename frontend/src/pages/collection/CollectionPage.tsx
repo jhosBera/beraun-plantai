@@ -158,9 +158,14 @@ export const CollectionPage: React.FC = () => {
       await collectionApi.create(formData);
       setSaveSuccess(true);
       fetchAlbumData();
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error al guardar en el álbum:', err);
-      alert('Error al guardar la planta en tu colección.');
+      const errorDetail = err.response?.data
+        ? (typeof err.response.data === 'object' 
+            ? Object.entries(err.response.data).map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(', ') : v}`).join(' | ')
+            : String(err.response.data))
+        : err.message || 'Error desconocido';
+      alert(`Error al guardar la planta en tu colección: ${errorDetail}`);
     } finally {
       setIsSaving(false);
     }

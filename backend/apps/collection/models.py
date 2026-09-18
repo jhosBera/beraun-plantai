@@ -39,7 +39,7 @@ class CollectedPlant(models.Model):
     common_name = models.CharField('Nombre Común', max_length=200, db_index=True)
     scientific_name = models.CharField('Nombre Científico', max_length=200, db_index=True)
     family = models.CharField('Familia Botánica', max_length=150, default='Desconocida')
-    category = models.CharField('Categoría', max_length=100, choices=CATEGORY_CHOICES, default='General', db_index=True)
+    category = models.CharField('Categoría', max_length=100, default='General', db_index=True)
     origin = models.CharField('Origen Geográfico', max_length=200, blank=True, default='')
     description = models.TextField('Descripción Botánica', blank=True, default='')
 
@@ -48,7 +48,7 @@ class CollectedPlant(models.Model):
     watering_frequency = models.CharField('Frecuencia de Riego', max_length=250, blank=True, default='')
     temperature_range = models.CharField('Rango de Temperatura', max_length=100, blank=True, default='')
     humidity_requirement = models.CharField('Humedad Ambiental', max_length=100, blank=True, default='')
-    difficulty = models.CharField('Dificultad de Cuidado', max_length=50, choices=DIFFICULTY_CHOICES, default='Moderado')
+    difficulty = models.CharField('Dificultad de Cuidado', max_length=50, default='Moderado')
 
     # Toxicidad y Seguridad
     toxicity_pets = models.BooleanField('Tóxica para Mascotas (Perros/Gatos)', default=False)
