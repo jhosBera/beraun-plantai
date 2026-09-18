@@ -28,7 +28,7 @@ class DeepSeekChatService:
     def model(self) -> str:
         return (
             getattr(settings, 'LLM_MODEL', '') or os.getenv('LLM_MODEL', '') or
-            ("qwen/qwen3.8-27b" if "groq.com" in self.api_url or self.api_key.startswith("gsk_") else "deepseek-chat")
+            ("openai/gpt-oss-120b" if "groq.com" in self.api_url or self.api_key.startswith("gsk_") else "deepseek-chat")
         )
 
     def generate_response(self, conversation_history: list[dict], extra_system_context: str = "") -> str:
@@ -63,11 +63,11 @@ class DeepSeekChatService:
         # Modelos candidatos para reintento en caso de rate limit (429) o incompatibilidad
         candidate_models = [self.model]
         if "groq.com" in self.api_url:
-            for fallback in ["llama-3.3-70b-versatile", "llama-3.1-8b-instant", "qwen/qwen3.8-27b"]:
+            for fallback in ["openai/gpt-oss-120b", "llama-3.3-70b-versatile", "llama-3.1-8b-instant", "qwen/qwen3.8-27b"]:
                 if fallback not in candidate_models:
                     candidate_models.append(fallback)
 
-        max_tokens_val = int(getattr(settings, 'LLM_MAX_TOKENS', 800) or os.getenv('LLM_MAX_TOKENS', 800))
+        max_tokens_val = int(getattr(settings, 'LLM_MAX_TOKENS', 1500) or os.getenv('LLM_MAX_TOKENS', 1500))
 
         with httpx.Client(timeout=35.0) as client:
             for current_model in candidate_models:
