@@ -214,7 +214,7 @@ export const CollectionPage: React.FC = () => {
             <h1 className="text-2xl font-black tracking-tight">Colección Botánica Inteligente</h1>
             <Badge variant="purple" className="flex items-center gap-1 font-black">
               <Sparkles className="w-3.5 h-3.5" />
-              Gemini Vision
+              Groq Qwen Vision
             </Badge>
           </div>
           <p className="text-sm font-bold text-zinc-600 mt-1">
@@ -311,7 +311,7 @@ export const CollectionPage: React.FC = () => {
                     {isScanning && (
                       <div className="absolute inset-0 bg-black/60 backdrop-blur-xs flex flex-col items-center justify-center text-white p-4 text-center">
                         <Sparkles className="w-10 h-10 text-[#FFD200] animate-spin mb-2" />
-                        <p className="font-black text-lg">Analizando con Gemini Vision...</p>
+                        <p className="font-black text-lg">Analizando con Groq Qwen Vision...</p>
                         <p className="text-xs font-bold text-zinc-300 mt-1">
                           Extrayendo taxonomía, requerimientos y precauciones botánicas
                         </p>

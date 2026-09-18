@@ -25,7 +25,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen = false, onClose }) => 
   const navItems = [
     { to: '/', label: 'Dashboard', icon: LayoutDashboard, exact: true },
     { to: '/crops', label: 'Parcelas y Cultivos', icon: Sprout },
-    { to: '/collection', label: 'Colección Botánica', icon: BookOpen, badge: 'Gemini AI' },
+    { to: '/collection', label: 'Colección Botánica', icon: BookOpen, badge: 'Qwen Vision' },
     { to: '/diagnosis', label: 'Diagnóstico IA', icon: ScanSearch, badge: 'Deep Learning' },
     { to: '/assistant', label: 'Asistente Botánico', icon: BotMessageSquare, badge: 'Qwen 3.8' },
     { to: '/reports', label: 'Reportes y Alertas', icon: FileBarChart2 },

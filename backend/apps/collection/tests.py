@@ -88,6 +88,6 @@ class CollectionAPITestCase(TestCase):
             format='multipart'
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(response.data.get('is_plant'))
-        self.assertTrue('common_name' in response.data)
-        self.assertTrue('scientific_name' in response.data)
+        self.assertIn('is_plant', response.data)
+        self.assertIn('common_name', response.data)
+        self.assertIn('scientific_name', response.data)

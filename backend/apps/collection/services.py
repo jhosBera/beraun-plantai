@@ -1,8 +1,10 @@
 import os
 import json
+import base64
 import logging
 from io import BytesIO
 from PIL import Image
+import httpx
 from django.conf import settings
 
 logger = logging.getLogger("collection_ai_service")
@@ -11,7 +13,7 @@ BOTANICAL_PROMPT = """
 Eres un botánico experto mundial con doctorado en taxonomía vegetal, horticultura y fitopatología.
 Analiza la imagen adjunta para identificar la planta o flor con la máxima precisión posible.
 
-Debes responder ÚNICAMENTE con un objeto JSON válido con la siguiente estructura:
+Debes responder ÚNICAMENTE con un objeto JSON válido con la siguiente estructura exacta:
 {
   "is_plant": true,
   "common_name": "Nombre común en español (ej. Monstera Deliciosa / Costilla de Adán)",
@@ -56,115 +58,83 @@ Si la imagen NO es una planta (por ejemplo, es un auto, un mueble, un animal, un
 
 class BotanicalAIService:
     """
-    Servicio para el análisis e identificación botánica con Google Gemini Vision.
+    Servicio para el análisis e identificación botánica con IA Multimodal (Groq Qwen 3.8).
     """
-    def __init__(self):
-        self.api_key = getattr(settings, 'GEMINI_API_KEY', '') or os.getenv('GEMINI_API_KEY', '')
+    @property
+    def groq_api_key(self) -> str:
+        return (
+            getattr(settings, 'GROQ_API_KEY', '') or os.getenv('GROQ_API_KEY', '') or
+            getattr(settings, 'LLM_API_KEY', '') or os.getenv('LLM_API_KEY', '')
+        )
 
     def analyze_plant_image(self, image_bytes: bytes) -> dict:
         """
-        Envía la imagen a la IA de Gemini para su reconocimiento botánico.
-        Si no hay API key o ocurre un error de red/cuota, responde con análisis inteligente o modo demo.
+        Envía la imagen a la IA de Groq Qwen Vision para su reconocimiento botánico.
         """
-        api_key = self.api_key.strip() if self.api_key else ""
-        if not api_key or api_key == "TU_GEMINI_API_KEY_AQUI" or api_key == "your_gemini_api_key_here":
-            logger.warning("No se encontró GEMINI_API_KEY válida. Utilizando análisis botánico demo.")
+        groq_key = self.groq_api_key.strip() if self.groq_api_key else ""
+        if not groq_key or groq_key == "TU_GROQ_API_KEY_AQUI" or groq_key == "gsk_your_groq_api_key_here":
+            logger.warning("No se encontró GROQ_API_KEY válida. Utilizando análisis botánico demo.")
             return self.get_demo_analysis()
 
         try:
-            # Optimizar y convertir imagen con Pillow
+            # Optimizar y redimensionar imagen con Pillow
             pil_img = Image.open(BytesIO(image_bytes))
             if pil_img.mode in ("RGBA", "P"):
                 pil_img = pil_img.convert("RGB")
 
-            max_size = (1600, 1600)
+            # Garantizar dimensiones mínimas de 32x32 y máximas de 1280x1280
+            width, height = pil_img.size
+            if width < 64 or height < 64:
+                pil_img = pil_img.resize((max(width, 128), max(height, 128)), Image.Resampling.LANCZOS)
+
+            max_size = (1280, 1280)
             pil_img.thumbnail(max_size, Image.Resampling.LANCZOS)
 
             buffer = BytesIO()
             pil_img.save(buffer, format="JPEG", quality=85)
             optimized_bytes = buffer.getvalue()
 
-            # Intentar primero con la nueva librería google-genai
-            try:
-                from google import genai
-                from google.genai import types
+            b64_str = base64.b64encode(optimized_bytes).decode('utf-8')
+            image_data_url = f"data:image/jpeg;base64,{b64_str}"
 
-                client = genai.Client(api_key=api_key)
-                preferred_models = [
-                    "gemini-3.6-flash",
-                    "gemini-3.7-flash",
-                    "gemini-3.8-flash",
-                    "gemini-3.5-flash",
-                    "gemini-flash-latest",
-                ]
+            # Llamada directa a Groq API con Qwen 3.8 Multimodal
+            headers = {
+                "Authorization": f"Bearer {groq_key}",
+                "Content-Type": "application/json"
+            }
 
-                response = None
-                for model_name in preferred_models:
-                    try:
-                        response = client.models.generate_content(
-                            model=model_name,
-                            contents=[
-                                types.Part.from_bytes(data=optimized_bytes, mime_type="image/jpeg"),
-                                BOTANICAL_PROMPT
-                            ],
-                            config=types.GenerateContentConfig(
-                                response_mime_type="application/json",
-                                temperature=0.2,
-                            )
-                        )
-                        if response and response.text:
-                            logger.info(f"Identificación botánica exitosa con {model_name}")
-                            break
-                    except Exception as mod_err:
-                        logger.warning(f"Error con modelo {model_name}: {mod_err}. Probando siguiente...")
-                        continue
+            payload = {
+                "model": "qwen/qwen3.8-27b",
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": [
+                            {"type": "text", "text": BOTANICAL_PROMPT},
+                            {"type": "image_url", "image_url": {"url": image_data_url}}
+                        ]
+                    }
+                ],
+                "response_format": {"type": "json_object"},
+                "temperature": 0.2,
+                "max_tokens": 1000
+            }
 
-                if response and response.text:
-                    return self._clean_and_parse_json(response.text)
-
-            except Exception as genai_err:
-                logger.warning(f"Intento con SDK falló ({genai_err}), intentando via HTTP REST...")
-                import httpx
-                import base64
-
-                b64_img = base64.b64encode(optimized_bytes).decode('utf-8')
-                http_models = [
-                    "gemini-3.6-flash",
-                    "gemini-3.7-flash",
-                    "gemini-3.8-flash",
-                    "gemini-3.5-flash",
-                    "gemini-flash-latest",
-                ]
-
-                with httpx.Client(timeout=35.0) as client:
-                    for model_name in http_models:
-                        try:
-                            url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={api_key}"
-                            payload = {
-                                "contents": [{
-                                    "parts": [
-                                        {"inline_data": {"mime_type": "image/jpeg", "data": b64_img}},
-                                        {"text": BOTANICAL_PROMPT}
-                                    ]
-                                }],
-                                "generationConfig": {
-                                    "response_mime_type": "application/json",
-                                    "temperature": 0.2
-                                }
-                            }
-                            resp = client.post(url, json=payload)
-                            if resp.status_code == 200:
-                                data = resp.json()
-                                raw_text = data['candidates'][0]['content']['parts'][0]['text']
-                                return self._clean_and_parse_json(raw_text)
-                            else:
-                                logger.warning(f"HTTP Gemini {model_name} Error {resp.status_code}: {resp.text[:150]}")
-                        except Exception as http_err:
-                            logger.warning(f"HTTP error con {model_name}: {http_err}")
-                            continue
+            with httpx.Client(timeout=30.0) as client:
+                resp = client.post(
+                    "https://api.groq.com/openai/v1/chat/completions",
+                    json=payload,
+                    headers=headers
+                )
+                if resp.status_code == 200:
+                    data = resp.json()
+                    content = data["choices"][0]["message"]["content"]
+                    logger.info("Identificación botánica exitosa con Groq Qwen Vision.")
+                    return self._clean_and_parse_json(content)
+                else:
+                    logger.error(f"Error en Groq Qwen Vision status {resp.status_code}: {resp.text}")
 
         except Exception as e:
-            logger.error(f"Error procesando imagen botánica: {e}", exc_info=True)
+            logger.error(f"Error procesando imagen botánica con Groq Qwen: {e}", exc_info=True)
 
         return self.get_fallback_analysis()
 
@@ -216,7 +186,7 @@ class BotanicalAIService:
             "difficulty": "Moderado",
             "toxicity_pets": False,
             "toxicity_humans": False,
-            "toxicity_details": "Configura tu clave GEMINI_API_KEY en el servidor para taxonomía y análisis detallado en tiempo real.",
+            "toxicity_details": "Configura tu clave GROQ_API_KEY en el servidor para taxonomía y análisis detallado en tiempo real.",
             "fun_facts": "¡Esta planta ya está disponible en tu álbum botánico!",
             "confidence": 0.88
         }
