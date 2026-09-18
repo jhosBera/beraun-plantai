@@ -91,11 +91,12 @@ class BotanicalAIService:
 
                 client = genai.Client(api_key=api_key)
                 preferred_models = [
-                    "gemini-3.6-flash",
-                    "gemini-3.8-flash",
                     "gemini-2.5-flash",
-                    "gemini-2.0-flash",
-                    "gemini-1.5-flash",
+                    "gemini-flash-latest",
+                    "gemini-3.7-flash",
+                    "gemini-3.6-flash",
+                    "gemini-3.5-flash",
+                    "gemini-2.5-flash-lite",
                 ]
 
                 response = None
@@ -122,34 +123,46 @@ class BotanicalAIService:
                 if response and response.text:
                     return self._clean_and_parse_json(response.text)
 
-            except ImportError:
-                # Si google-genai no está instalado, intentar con google.generativeai clásico o httpx
+            except Exception as genai_err:
+                logger.warning(f"Intento con SDK falló ({genai_err}), intentando via HTTP REST...")
                 import httpx
                 import base64
 
                 b64_img = base64.b64encode(optimized_bytes).decode('utf-8')
-                url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
-                payload = {
-                    "contents": [{
-                        "parts": [
-                            {"inline_data": {"mime_type": "image/jpeg", "data": b64_img}},
-                            {"text": BOTANICAL_PROMPT}
-                        ]
-                    }],
-                    "generationConfig": {
-                        "response_mime_type": "application/json",
-                        "temperature": 0.2
-                    }
-                }
+                http_models = [
+                    "gemini-2.5-flash",
+                    "gemini-flash-latest",
+                    "gemini-3.7-flash",
+                    "gemini-3.5-flash",
+                    "gemini-2.5-flash-lite",
+                ]
 
                 with httpx.Client(timeout=35.0) as client:
-                    resp = client.post(url, json=payload)
-                    if resp.status_code == 200:
-                        data = resp.json()
-                        raw_text = data['candidates'][0]['content']['parts'][0]['text']
-                        return self._clean_and_parse_json(raw_text)
-                    else:
-                        logger.error(f"HTTP Gemini Error {resp.status_code}: {resp.text}")
+                    for model_name in http_models:
+                        try:
+                            url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={api_key}"
+                            payload = {
+                                "contents": [{
+                                    "parts": [
+                                        {"inline_data": {"mime_type": "image/jpeg", "data": b64_img}},
+                                        {"text": BOTANICAL_PROMPT}
+                                    ]
+                                }],
+                                "generationConfig": {
+                                    "response_mime_type": "application/json",
+                                    "temperature": 0.2
+                                }
+                            }
+                            resp = client.post(url, json=payload)
+                            if resp.status_code == 200:
+                                data = resp.json()
+                                raw_text = data['candidates'][0]['content']['parts'][0]['text']
+                                return self._clean_and_parse_json(raw_text)
+                            else:
+                                logger.warning(f"HTTP Gemini {model_name} Error {resp.status_code}: {resp.text[:150]}")
+                        except Exception as http_err:
+                            logger.warning(f"HTTP error con {model_name}: {http_err}")
+                            continue
 
         except Exception as e:
             logger.error(f"Error procesando imagen botánica: {e}", exc_info=True)
