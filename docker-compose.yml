@@ -51,7 +51,7 @@ services:
       redis:
         condition: service_healthy
     command: >
-      sh -c "python manage.py makemigrations users crops diagnosis reports assistant &&
+      sh -c "python manage.py makemigrations users crops diagnosis reports assistant collection &&
              python manage.py migrate &&
              python manage.py runserver 0.0.0.0:8000"
 
