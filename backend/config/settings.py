@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'apps.diagnosis.apps.DiagnosisConfig',
     'apps.assistant.apps.AssistantConfig',
     'apps.reports.apps.ReportsConfig',
+    'apps.collection.apps.CollectionConfig',
 ]
 
 MIDDLEWARE = [
@@ -79,7 +80,18 @@ DB_USER = os.getenv('POSTGRES_USER', 'plantai_user')
 DB_PASSWORD = os.getenv('POSTGRES_PASSWORD', 'plantai_password')
 DB_PORT = os.getenv('DB_PORT', '5432')
 
-if DB_HOST:
+has_psycopg = False
+try:
+    import psycopg2
+    has_psycopg = True
+except ImportError:
+    try:
+        import psycopg
+        has_psycopg = True
+    except ImportError:
+        has_psycopg = False
+
+if DB_HOST and has_psycopg:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
@@ -91,7 +103,7 @@ if DB_HOST:
         }
     }
 else:
-    # Fallback to sqlite if DB_HOST is not provided (useful for local quick development)
+    # Fallback to sqlite if DB_HOST is not provided or psycopg is not available (local dev)
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -181,3 +193,6 @@ DEEPSEEK_API_URL = os.getenv('DEEPSEEK_API_URL', 'https://api.deepseek.com')
 # ML Model Configuration
 ML_MODEL_PATH = os.getenv('ML_MODEL_PATH', str(BASE_DIR / 'ml_models' / 'plant_disease_model.pth'))
 USE_MOCK_MODEL = os.getenv('USE_MOCK_MODEL', 'True') == 'True'
+
+# Google Gemini API Configuration (CollectPlant - Botanical Vision)
+GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', '')

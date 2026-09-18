@@ -52,3 +52,32 @@ apiClient.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+// Botanical Collection API (CollectPlant)
+export const collectionApi = {
+  identify: async (formData: FormData) => {
+    return apiClient.post('/v1/collection/plants/identify/', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
+  getAll: async (params?: Record<string, any>) => {
+    return apiClient.get('/v1/collection/plants/', { params });
+  },
+  getById: async (id: number) => {
+    return apiClient.get(`/v1/collection/plants/${id}/`);
+  },
+  create: async (formData: FormData) => {
+    return apiClient.post('/v1/collection/plants/', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
+  update: async (id: number, data: Record<string, any>) => {
+    return apiClient.patch(`/v1/collection/plants/${id}/`, data);
+  },
+  delete: async (id: number) => {
+    return apiClient.delete(`/v1/collection/plants/${id}/`);
+  },
+  getStats: async () => {
+    return apiClient.get('/v1/collection/plants/stats/');
+  },
+};

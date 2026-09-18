@@ -19,6 +19,8 @@ urlpatterns = [
     path('api/', include('apps.diagnosis.urls')),
     path('api/', include('apps.assistant.urls')),
     path('api/', include('apps.reports.urls')),
+    path('api/v1/collection/', include('apps.collection.urls')),
+    path('api/collection/', include('apps.collection.urls')),
 ]
 
 if settings.DEBUG:

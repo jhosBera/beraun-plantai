@@ -157,3 +157,5 @@ export interface Notification {
   link_url?: string;
   created_at: string;
 }
+
+export * from './collection';

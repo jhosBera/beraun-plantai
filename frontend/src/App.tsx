@@ -11,6 +11,7 @@ import { DiagnosisPage } from './pages/diagnosis/DiagnosisPage';
 import { AssistantPage } from './pages/assistant/AssistantPage';
 import { ReportsPage } from './pages/reports/ReportsPage';
 import { ProfilePage } from './pages/profile/ProfilePage';
+import { CollectionPage } from './pages/collection/CollectionPage';
 
 // Protected Route Wrapper
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -63,6 +64,7 @@ export const App: React.FC = () => {
           <Route path="/" element={<Dashboard />} />
           <Route path="/crops" element={<PlotsList />} />
           <Route path="/crops/:id" element={<CropDetail />} />
+          <Route path="/collection" element={<CollectionPage />} />
           <Route path="/diagnosis" element={<DiagnosisPage />} />
           <Route path="/assistant" element={<AssistantPage />} />
           <Route path="/reports" element={<ReportsPage />} />
