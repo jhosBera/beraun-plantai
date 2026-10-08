@@ -14,7 +14,25 @@ load_dotenv(BASE_DIR.parent / '.env')
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-beraun-plantai-default-key-348912')
 DEBUG = os.getenv('DJANGO_DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1,backend,web').split(',')
+allowed_hosts_env = os.getenv('DJANGO_ALLOWED_HOSTS', '')
+if allowed_hosts_env:
+    ALLOWED_HOSTS = [h.strip() for h in allowed_hosts_env.split(',') if h.strip()]
+    if '.railway.app' not in ALLOWED_HOSTS:
+        ALLOWED_HOSTS.extend(['.railway.app', '.up.railway.app'])
+else:
+    ALLOWED_HOSTS = ['*']
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.railway.app',
+    'https://*.up.railway.app',
+    'http://localhost:5173',
+    'http://localhost:8000',
+    'http://localhost:80',
+    'http://127.0.0.1:5173',
+]
+csrf_origins_env = os.getenv('CSRF_TRUSTED_ORIGINS', '')
+if csrf_origins_env:
+    CSRF_TRUSTED_ORIGINS.extend([o.strip() for o in csrf_origins_env.split(',') if o.strip()])
 
 # Application definition
 INSTALLED_APPS = [
@@ -44,6 +62,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -74,6 +93,7 @@ WSGI_APPLICATION = 'config.wsgi.application'
 ASGI_APPLICATION = 'config.asgi.application'
 
 # Database configuration
+DATABASE_URL = os.getenv('DATABASE_URL', '')
 DB_HOST = os.getenv('DB_HOST', '')
 DB_NAME = os.getenv('POSTGRES_DB', 'plantai_db')
 DB_USER = os.getenv('POSTGRES_USER', 'plantai_user')
@@ -91,7 +111,20 @@ except ImportError:
     except ImportError:
         has_psycopg = False
 
-if DB_HOST and has_psycopg:
+if DATABASE_URL and has_psycopg:
+    import urllib.parse
+    url = urllib.parse.urlparse(DATABASE_URL)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': url.path.lstrip('/'),
+            'USER': urllib.parse.unquote(url.username or ''),
+            'PASSWORD': urllib.parse.unquote(url.password or ''),
+            'HOST': url.hostname,
+            'PORT': url.port or 5432,
+        }
+    }
+elif DB_HOST and has_psycopg:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
@@ -131,6 +164,7 @@ USE_TZ = True
 # Static & Media Files
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'static'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
