@@ -26,9 +26,10 @@ export const useCropStore = create<CropState>((set, get) => ({
     set({ isLoading: true });
     try {
       const res = await apiClient.get('/plots/');
-      set({ plots: res.data.results || res.data, isLoading: false });
+      const data = res.data?.results || res.data;
+      set({ plots: Array.isArray(data) ? data : [], isLoading: false });
     } catch (error) {
-      set({ isLoading: false });
+      set({ plots: [], isLoading: false });
       console.error('Error fetching plots:', error);
     }
   },
@@ -38,9 +39,10 @@ export const useCropStore = create<CropState>((set, get) => ({
     try {
       const url = plotId ? `/crops/?plot=${plotId}` : '/crops/';
       const res = await apiClient.get(url);
-      set({ crops: res.data.results || res.data, isLoading: false });
+      const data = res.data?.results || res.data;
+      set({ crops: Array.isArray(data) ? data : [], isLoading: false });
     } catch (error) {
-      set({ isLoading: false });
+      set({ crops: [], isLoading: false });
       console.error('Error fetching crops:', error);
     }
   },

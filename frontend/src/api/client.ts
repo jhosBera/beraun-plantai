@@ -1,16 +1,33 @@
 import axios from 'axios';
 
-const API_BASE_URL = (import.meta as any).env?.VITE_API_URL || '/api';
+export const getApiBaseUrl = (): string => {
+  const saved = localStorage.getItem('custom_api_url');
+  if (saved && saved.trim() && !saved.includes('beraun.space')) return saved.trim().replace(/\/+$/, '');
+
+  const envUrl = (import.meta as any).env?.VITE_API_URL;
+  if (envUrl && envUrl.trim() && !envUrl.includes('beraun.space')) return envUrl.trim().replace(/\/+$/, '');
+
+  // Producción en Railway
+  return 'https://beraun-plantai-production.up.railway.app/api';
+};
+
+export const setCustomApiUrl = (url: string) => {
+  const cleanUrl = url.trim().replace(/\/+$/, '');
+  localStorage.setItem('custom_api_url', cleanUrl);
+  apiClient.defaults.baseURL = cleanUrl;
+};
 
 export const apiClient = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: getApiBaseUrl(),
+  timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Request interceptor: Attach JWT access token
+// Request interceptor: Attach JWT access token and dynamic baseURL
 apiClient.interceptors.request.use((config) => {
+  config.baseURL = getApiBaseUrl();
   const token = localStorage.getItem('access_token');
   if (token && config.headers) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -30,7 +47,8 @@ apiClient.interceptors.response.use(
       const refreshToken = localStorage.getItem('refresh_token');
       if (refreshToken) {
         try {
-          const res = await axios.post(`${API_BASE_URL}/auth/refresh/`, {
+          const currentBase = getApiBaseUrl();
+          const res = await axios.post(`${currentBase}/auth/refresh/`, {
             refresh: refreshToken,
           });
           const newAccess = res.data.access;
@@ -41,12 +59,12 @@ apiClient.interceptors.response.use(
           localStorage.removeItem('access_token');
           localStorage.removeItem('refresh_token');
           localStorage.removeItem('user');
-          window.location.href = '/login';
+          window.location.href = '/#/login';
         }
       } else {
         localStorage.removeItem('access_token');
         localStorage.removeItem('user');
-        window.location.href = '/login';
+        window.location.href = '/#/login';
       }
     }
     return Promise.reject(error);

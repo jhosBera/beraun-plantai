@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Sprout, Lock, Mail, ArrowRight } from 'lucide-react';
+import { Sprout, Lock, Mail, ArrowRight, Settings } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
+import { ServerConfigModal } from '../../components/ui/ServerConfigModal';
 
 export const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isServerModalOpen, setIsServerModalOpen] = useState(false);
 
   const { login } = useAuthStore();
   const navigate = useNavigate();
@@ -23,11 +25,15 @@ export const Login: React.FC = () => {
       await login({ email, password });
       navigate('/');
     } catch (err: any) {
-      setError(
-        err.response?.data?.detail ||
-        err.response?.data?.non_field_errors?.[0] ||
-        'Credenciales inválidas. Por favor intenta de nuevo.'
-      );
+      if (!err.response) {
+        setError('No se pudo conectar al servidor backend. Verifica la conexión.');
+      } else {
+        setError(
+          err.response?.data?.detail ||
+          err.response?.data?.non_field_errors?.[0] ||
+          'Credenciales inválidas. Por favor intenta de nuevo.'
+        );
+      }
     } finally {
       setLoading(false);
     }
@@ -104,15 +110,29 @@ export const Login: React.FC = () => {
             </Button>
           </form>
 
-          <div className="mt-6 pt-6 border-t-2 border-zinc-200 text-center">
+          <div className="mt-6 pt-6 border-t-2 border-zinc-200 text-center space-y-3">
             <p className="text-xs font-bold text-zinc-600">
               ¿No tienes una cuenta aún?{' '}
               <Link to="/register" className="font-black text-black underline hover:text-[#16a34a]">
                 Regístrate gratis
               </Link>
             </p>
+
+            <button
+              type="button"
+              onClick={() => setIsServerModalOpen(true)}
+              className="inline-flex items-center gap-1.5 text-xs font-black text-zinc-500 hover:text-black pt-2"
+            >
+              <Settings className="w-3.5 h-3.5" />
+              <span>Configuración de Servidor / IP</span>
+            </button>
           </div>
         </Card>
+
+        <ServerConfigModal
+          isOpen={isServerModalOpen}
+          onClose={() => setIsServerModalOpen(false)}
+        />
       </div>
     </div>
   );

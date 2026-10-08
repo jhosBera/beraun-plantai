@@ -63,8 +63,10 @@ export const CropDetail: React.FC = () => {
   const fetchCropDiagnoses = async (cropId: number) => {
     try {
       const res = await apiClient.get(`/diagnosis/?crop=${cropId}`);
-      setDiagnoses(res.data.results || res.data);
+      const data = res.data?.results || res.data;
+      setDiagnoses(Array.isArray(data) ? data : []);
     } catch (err) {
+      setDiagnoses([]);
       console.error(err);
     }
   };

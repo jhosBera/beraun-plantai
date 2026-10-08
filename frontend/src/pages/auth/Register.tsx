@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Sprout, Lock, Mail, User, Phone, Home, ArrowRight } from 'lucide-react';
+import { Sprout, Lock, Mail, User, Phone, Home, ArrowRight, Settings } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
+import { ServerConfigModal } from '../../components/ui/ServerConfigModal';
 
 export const Register: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -17,6 +18,7 @@ export const Register: React.FC = () => {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isServerModalOpen, setIsServerModalOpen] = useState(false);
 
   const { register } = useAuthStore();
   const navigate = useNavigate();
@@ -223,15 +225,29 @@ export const Register: React.FC = () => {
             </Button>
           </form>
 
-          <div className="mt-6 pt-6 border-t-2 border-zinc-200 text-center">
+          <div className="mt-6 pt-6 border-t-2 border-zinc-200 text-center space-y-3">
             <p className="text-xs font-bold text-zinc-600">
               ¿Ya tienes cuenta?{' '}
               <Link to="/login" className="font-black text-black underline hover:text-[#00a7af]">
                 Inicia sesión aquí
               </Link>
             </p>
+
+            <button
+              type="button"
+              onClick={() => setIsServerModalOpen(true)}
+              className="inline-flex items-center gap-1.5 text-xs font-black text-zinc-500 hover:text-black pt-2"
+            >
+              <Settings className="w-3.5 h-3.5" />
+              <span>Configuración de Servidor / IP</span>
+            </button>
           </div>
         </Card>
+
+        <ServerConfigModal
+          isOpen={isServerModalOpen}
+          onClose={() => setIsServerModalOpen(false)}
+        />
       </div>
     </div>
   );

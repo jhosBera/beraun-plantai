@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Bell, Sparkles, User as UserIcon, LogOut, CheckCheck, Menu } from 'lucide-react';
+import { Bell, Sparkles, User as UserIcon, LogOut, CheckCheck, Menu, Settings } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useNotificationStore } from '../../store/notificationStore';
 import { Button } from '../ui/Button';
+import { ServerConfigModal } from '../ui/ServerConfigModal';
 
 interface NavbarProps {
   onMenuClick?: () => void;
@@ -13,6 +14,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onMenuClick }) => {
   const { user, logout } = useAuthStore();
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotificationStore();
   const [showNotifications, setShowNotifications] = useState(false);
+  const [isServerModalOpen, setIsServerModalOpen] = useState(false);
   const navigate = useNavigate();
 
   return (
@@ -80,7 +82,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onMenuClick }) => {
                 )}
               </div>
               <div className="max-h-72 overflow-y-auto divide-y-2 divide-zinc-100">
-                {notifications.length === 0 ? (
+                {(!Array.isArray(notifications) || notifications.length === 0) ? (
                   <div className="p-6 text-center text-sm font-bold text-zinc-500">
                     No tienes notificaciones pendientes
                   </div>
@@ -115,6 +117,16 @@ export const Navbar: React.FC<NavbarProps> = ({ onMenuClick }) => {
           )}
         </div>
 
+        {/* Server Config Button */}
+        <button
+          type="button"
+          onClick={() => setIsServerModalOpen(true)}
+          className="p-2.5 bg-white rounded-xl border-2 border-black shadow-neo hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-neo-sm transition-all text-black"
+          title="Configuración de Servidor"
+        >
+          <Settings className="w-4 h-4" />
+        </button>
+
         {/* User Profile avatar */}
         <Link
           to="/profile"
@@ -128,6 +140,11 @@ export const Navbar: React.FC<NavbarProps> = ({ onMenuClick }) => {
           </span>
         </Link>
       </div>
+
+      <ServerConfigModal
+        isOpen={isServerModalOpen}
+        onClose={() => setIsServerModalOpen(false)}
+      />
     </header>
   );
 };

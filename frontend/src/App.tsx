@@ -1,5 +1,7 @@
-import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Capacitor } from '@capacitor/core';
+import { StatusBar, Style } from '@capacitor/status-bar';
 import { useAuthStore } from './store/authStore';
 import { AppLayout } from './components/layout/AppLayout';
 import { Login } from './pages/auth/Login';
@@ -12,6 +14,7 @@ import { AssistantPage } from './pages/assistant/AssistantPage';
 import { ReportsPage } from './pages/reports/ReportsPage';
 import { ProfilePage } from './pages/profile/ProfilePage';
 import { CollectionPage } from './pages/collection/CollectionPage';
+import { ErrorBoundary } from './components/ui/ErrorBoundary';
 
 // Protected Route Wrapper
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -32,9 +35,16 @@ const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 };
 
 export const App: React.FC = () => {
+  useEffect(() => {
+    if (Capacitor.isNativePlatform()) {
+      StatusBar.setStyle({ style: Style.Dark }).catch(() => {});
+      StatusBar.setBackgroundColor({ color: '#00C2CB' }).catch(() => {});
+    }
+  }, []);
   return (
-    <BrowserRouter>
-      <Routes>
+    <ErrorBoundary>
+      <HashRouter>
+        <Routes>
         {/* Public Authentication Routes */}
         <Route
           path="/login"
@@ -74,7 +84,8 @@ export const App: React.FC = () => {
         {/* Catch-all fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
+  </ErrorBoundary>
   );
 };
 

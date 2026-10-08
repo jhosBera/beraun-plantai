@@ -28,6 +28,8 @@ import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import { Modal } from '../../components/ui/Modal';
+import { nativeCamera } from '../../services/nativeCamera';
+import { nativeGeolocation } from '../../services/nativeGeolocation';
 
 export const CollectionPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'scanner' | 'album'>('scanner');
@@ -39,6 +41,7 @@ export const CollectionPage: React.FC = () => {
   const [analysisResult, setAnalysisResult] = useState<PlantAnalysisResult | null>(null);
   const [userNotes, setUserNotes] = useState('');
   const [locationFound, setLocationFound] = useState('');
+  const [isGettingLocation, setIsGettingLocation] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
@@ -91,12 +94,81 @@ export const CollectionPage: React.FC = () => {
         collectionApi.getStats()
       ]);
 
-      setPlants(plantsRes.data.results || plantsRes.data || []);
+      const plantList = plantsRes.data?.results || plantsRes.data;
+      setPlants(Array.isArray(plantList) ? plantList : []);
       setStats(statsRes.data);
     } catch (err) {
+      setPlants([]);
       console.error('Error al cargar la colección botánica:', err);
     } finally {
       setLoadingPlants(false);
+    }
+  };
+
+  const handleTakePhoto = async () => {
+    try {
+      if (nativeCamera.isNative()) {
+        const result = await nativeCamera.takePhoto();
+        if (result) {
+          setSelectedFile(result.file);
+          setPreviewUrl(result.previewUrl);
+          setAnalysisResult(null);
+          setSaveSuccess(false);
+        }
+      } else {
+        cameraInputRef.current?.click();
+      }
+    } catch (err) {
+      console.error('Error al abrir cámara nativa:', err);
+      cameraInputRef.current?.click();
+    }
+  };
+
+  const handlePickImage = async () => {
+    try {
+      if (nativeCamera.isNative()) {
+        const result = await nativeCamera.pickImage();
+        if (result) {
+          setSelectedFile(result.file);
+          setPreviewUrl(result.previewUrl);
+          setAnalysisResult(null);
+          setSaveSuccess(false);
+        }
+      } else {
+        fileInputRef.current?.click();
+      }
+    } catch (err) {
+      console.error('Error al abrir galería nativa:', err);
+      fileInputRef.current?.click();
+    }
+  };
+
+  const handleGetLocation = async () => {
+    setIsGettingLocation(true);
+    try {
+      if (nativeGeolocation.isNative()) {
+        const pos = await nativeGeolocation.getCurrentPosition();
+        setLocationFound(`GPS: ${pos.latitude.toFixed(5)}, ${pos.longitude.toFixed(5)}`);
+      } else if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            setLocationFound(`GPS: ${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)}`);
+            setIsGettingLocation(false);
+          },
+          (err) => {
+            console.error(err);
+            alert('No se pudo obtener la ubicación GPS.');
+            setIsGettingLocation(false);
+          },
+          { enableHighAccuracy: true }
+        );
+        return;
+      }
+    } catch (err) {
+      console.error('Error obteniendo ubicación:', err);
+      alert('No se pudo obtener la ubicación del dispositivo.');
+    } finally {
+      setIsGettingLocation(false);
     }
   };
 
@@ -367,7 +439,7 @@ export const CollectionPage: React.FC = () => {
                   <div className="grid grid-cols-2 gap-3">
                     <Button
                       variant="secondary"
-                      onClick={() => cameraInputRef.current?.click()}
+                      onClick={handleTakePhoto}
                       className="w-full flex items-center justify-center gap-2"
                     >
                       <Camera className="w-4 h-4" />
@@ -375,7 +447,7 @@ export const CollectionPage: React.FC = () => {
                     </Button>
                     <Button
                       variant="secondary"
-                      onClick={() => fileInputRef.current?.click()}
+                      onClick={handlePickImage}
                       className="w-full flex items-center justify-center gap-2"
                     >
                       <Upload className="w-4 h-4" />
@@ -517,10 +589,21 @@ export const CollectionPage: React.FC = () => {
                   </h4>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="text-xs font-bold text-zinc-700 block mb-1">Lugar de hallazgo</label>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="text-xs font-bold text-zinc-700">Lugar de hallazgo</label>
+                        <button
+                          type="button"
+                          onClick={handleGetLocation}
+                          disabled={isGettingLocation}
+                          className="text-[10px] font-black text-[#0369A1] hover:underline flex items-center gap-1"
+                        >
+                          <MapPin className="w-3 h-3" />
+                          <span>{isGettingLocation ? 'Obteniendo GPS...' : 'Autocompletar GPS'}</span>
+                        </button>
+                      </div>
                       <input
                         type="text"
-                        placeholder="Ej. Invernadero 2, Jardín frontal..."
+                        placeholder="Ej. Invernadero 2 o Coordenadas GPS"
                         value={locationFound}
                         onChange={(e) => setLocationFound(e.target.value)}
                         className="w-full px-3 py-2 text-xs font-bold rounded-xl border-2 border-black bg-white"

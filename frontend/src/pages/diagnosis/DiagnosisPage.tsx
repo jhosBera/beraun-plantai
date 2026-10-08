@@ -18,6 +18,7 @@ import { Diagnosis } from '../../types';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
+import { nativeCamera } from '../../services/nativeCamera';
 
 export const DiagnosisPage: React.FC = () => {
   const { crops } = useCropStore();
@@ -31,6 +32,9 @@ export const DiagnosisPage: React.FC = () => {
   const [pastDiagnoses, setPastDiagnoses] = useState<Diagnosis[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
 
+  const safeCrops = Array.isArray(crops) ? crops : [];
+  const safePastDiagnoses = Array.isArray(pastDiagnoses) ? pastDiagnoses : [];
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
@@ -42,11 +46,49 @@ export const DiagnosisPage: React.FC = () => {
     setLoadingHistory(true);
     try {
       const res = await apiClient.get('/diagnosis/');
-      setPastDiagnoses(res.data.results || res.data);
+      const data = res.data?.results || res.data;
+      setPastDiagnoses(Array.isArray(data) ? data : []);
     } catch (err) {
+      setPastDiagnoses([]);
       console.error(err);
     } finally {
       setLoadingHistory(false);
+    }
+  };
+
+  const handleTakePhoto = async () => {
+    try {
+      if (nativeCamera.isNative()) {
+        const result = await nativeCamera.takePhoto();
+        if (result) {
+          setSelectedFile(result.file);
+          setPreviewUrl(result.previewUrl);
+          setDiagnosisResult(null);
+        }
+      } else {
+        cameraInputRef.current?.click();
+      }
+    } catch (err) {
+      console.error('Error al abrir cámara nativa, usando selector web:', err);
+      cameraInputRef.current?.click();
+    }
+  };
+
+  const handlePickImage = async () => {
+    try {
+      if (nativeCamera.isNative()) {
+        const result = await nativeCamera.pickImage();
+        if (result) {
+          setSelectedFile(result.file);
+          setPreviewUrl(result.previewUrl);
+          setDiagnosisResult(null);
+        }
+      } else {
+        fileInputRef.current?.click();
+      }
+    } catch (err) {
+      console.error('Error al abrir galería nativa, usando selector web:', err);
+      fileInputRef.current?.click();
     }
   };
 
@@ -140,7 +182,7 @@ export const DiagnosisPage: React.FC = () => {
                 className="w-full px-3.5 py-2 bg-[#FDFBF7] border-2 border-black rounded-xl text-sm font-bold focus:outline-none focus:bg-white shadow-neo-sm"
               >
                 <option value="">Análisis general (sin asociar a cultivo)</option>
-                {crops.map((c) => (
+                {safeCrops.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.name} ({c.species} - {c.plot_name})
                   </option>
@@ -207,7 +249,7 @@ export const DiagnosisPage: React.FC = () => {
                   type="button"
                   variant="outline"
                   size="md"
-                  onClick={() => cameraInputRef.current?.click()}
+                  onClick={handleTakePhoto}
                   className="w-full"
                 >
                   <Camera className="w-4 h-4" />
@@ -218,7 +260,7 @@ export const DiagnosisPage: React.FC = () => {
                   type="button"
                   variant="outline"
                   size="md"
-                  onClick={() => fileInputRef.current?.click()}
+                  onClick={handlePickImage}
                   className="w-full"
                 >
                   <Upload className="w-4 h-4" />
@@ -398,13 +440,13 @@ export const DiagnosisPage: React.FC = () => {
               <div className="p-6 text-center text-xs font-bold text-zinc-500">
                 Cargando historial...
               </div>
-            ) : pastDiagnoses.length === 0 ? (
+            ) : safePastDiagnoses.length === 0 ? (
               <div className="p-6 text-center text-xs font-bold text-zinc-500 bg-white rounded-xl border-2 border-black">
                 No hay diagnósticos previos registrados.
               </div>
             ) : (
               <div className="space-y-3">
-                {pastDiagnoses.slice(0, 5).map((diag) => (
+                {safePastDiagnoses.slice(0, 5).map((diag) => (
                   <div
                     key={diag.id}
                     className="p-3.5 bg-white rounded-xl border-2 border-black shadow-neo-sm flex items-center justify-between gap-4 hover:translate-x-0.5 transition-transform"

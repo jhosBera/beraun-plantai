@@ -51,13 +51,15 @@ export const AssistantPage: React.FC = () => {
     setLoadingSessions(true);
     try {
       const res = await apiClient.get('/chat/sessions/');
-      const list = res.data.results || res.data;
-      setSessions(list);
+      const list = res.data?.results || res.data;
+      const safeList = Array.isArray(list) ? list : [];
+      setSessions(safeList);
 
-      if (!initialSessionId && list.length > 0 && !currentSession) {
-        loadSession(list[0].id);
+      if (!initialSessionId && safeList.length > 0 && !currentSession) {
+        loadSession(safeList[0].id);
       }
     } catch (err) {
+      setSessions([]);
       console.error('Error fetching chat sessions:', err);
     } finally {
       setLoadingSessions(false);

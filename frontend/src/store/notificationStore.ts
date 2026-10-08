@@ -21,9 +21,10 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
     set({ isLoading: true });
     try {
       const res = await apiClient.get('/notifications/');
-      set({ notifications: res.data.results || res.data, isLoading: false });
+      const data = res.data?.results || res.data;
+      set({ notifications: Array.isArray(data) ? data : [], isLoading: false });
     } catch (error) {
-      set({ isLoading: false });
+      set({ notifications: [], isLoading: false });
       console.error('Error fetching notifications:', error);
     }
   },

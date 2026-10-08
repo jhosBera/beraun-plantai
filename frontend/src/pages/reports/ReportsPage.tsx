@@ -24,6 +24,9 @@ export const ReportsPage: React.FC = () => {
   const { crops } = useCropStore();
   const { notifications, markAsRead, markAllAsRead } = useNotificationStore();
 
+  const safeCrops = Array.isArray(crops) ? crops : [];
+  const safeNotifications = Array.isArray(notifications) ? notifications : [];
+
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [loadingAlerts, setLoadingAlerts] = useState(false);
   const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
@@ -41,9 +44,9 @@ export const ReportsPage: React.FC = () => {
 
   useEffect(() => {
     fetchAlerts();
-    if (crops.length > 0 && !selectedCropForPDF) {
-      setSelectedCropForPDF(crops[0].id.toString());
-      setAlertForm(prev => ({ ...prev, crop: crops[0].id.toString() }));
+    if (safeCrops.length > 0 && !selectedCropForPDF) {
+      setSelectedCropForPDF(safeCrops[0].id.toString());
+      setAlertForm(prev => ({ ...prev, crop: safeCrops[0].id.toString() }));
     }
   }, [crops]);
 
@@ -51,8 +54,10 @@ export const ReportsPage: React.FC = () => {
     setLoadingAlerts(true);
     try {
       const res = await apiClient.get('/alerts/');
-      setAlerts(res.data.results || res.data);
+      const data = res.data?.results || res.data;
+      setAlerts(Array.isArray(data) ? data : []);
     } catch (err) {
+      setAlerts([]);
       console.error('Error fetching alerts:', err);
     } finally {
       setLoadingAlerts(false);
@@ -153,7 +158,7 @@ export const ReportsPage: React.FC = () => {
                   onChange={(e) => setSelectedCropForPDF(e.target.value)}
                   className="w-full px-3.5 py-2.5 bg-[#FDFBF7] border-2 border-black rounded-xl text-xs sm:text-sm font-bold focus:outline-none focus:bg-white shadow-neo-sm"
                 >
-                  {crops.map((c) => (
+                  {safeCrops.map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.name} ({c.species} - {c.plot_name})
                     </option>
@@ -181,7 +186,7 @@ export const ReportsPage: React.FC = () => {
                 <Bell className="w-4 h-4 text-black" />
                 <span>Notificaciones In-App</span>
               </h3>
-              {notifications.some(n => !n.is_read) && (
+              {safeNotifications.some(n => !n.is_read) && (
                 <button
                   onClick={() => markAllAsRead()}
                   className="text-xs font-bold text-blue-600 hover:underline"
@@ -192,12 +197,12 @@ export const ReportsPage: React.FC = () => {
             </div>
 
             <div className="max-h-72 overflow-y-auto space-y-2.5">
-              {notifications.length === 0 ? (
+              {safeNotifications.length === 0 ? (
                 <div className="text-center py-6 text-xs font-bold text-zinc-500 bg-[#FDFBF7] rounded-xl border border-dashed border-zinc-300">
                   No hay notificaciones recibidas.
                 </div>
               ) : (
-                notifications.map((n) => (
+                safeNotifications.map((n) => (
                   <div
                     key={n.id}
                     onClick={() => markAsRead(n.id)}
@@ -341,7 +346,7 @@ export const ReportsPage: React.FC = () => {
               className="w-full px-3.5 py-2 bg-[#FDFBF7] border-2 border-black rounded-xl text-sm font-bold focus:outline-none focus:bg-white shadow-neo-sm"
             >
               <option value="">Selecciona un cultivo...</option>
-              {crops.map((c) => (
+              {safeCrops.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name} ({c.species} - {c.plot_name})
                 </option>

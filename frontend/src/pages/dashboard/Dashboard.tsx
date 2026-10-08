@@ -33,8 +33,10 @@ export const Dashboard: React.FC = () => {
       setLoadingDiagnoses(true);
       try {
         const res = await apiClient.get('/diagnosis/');
-        setRecentDiagnoses((res.data.results || res.data).slice(0, 4));
+        const data = res.data?.results || res.data;
+        setRecentDiagnoses(Array.isArray(data) ? data.slice(0, 4) : []);
       } catch (err) {
+        setRecentDiagnoses([]);
         console.error('Error fetching recent diagnoses:', err);
       } finally {
         setLoadingDiagnoses(false);
@@ -43,9 +45,13 @@ export const Dashboard: React.FC = () => {
     fetchDiagnoses();
   }, []);
 
-  const totalCrops = crops.length;
-  const totalPlots = plots.length;
-  const sickCrops = crops.filter(c => c.status === 'alert').length;
+  const safeCrops = Array.isArray(crops) ? crops : [];
+  const safePlots = Array.isArray(plots) ? plots : [];
+  const safeDiagnoses = Array.isArray(recentDiagnoses) ? recentDiagnoses : [];
+
+  const totalCrops = safeCrops.length;
+  const totalPlots = safePlots.length;
+  const sickCrops = safeCrops.filter(c => c.status === 'alert').length;
 
   return (
     <div className="space-y-8">
@@ -171,7 +177,7 @@ export const Dashboard: React.FC = () => {
             </Card>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {recentDiagnoses.map((diag) => (
+              {safeDiagnoses.map((diag) => (
                 <Card key={diag.id} shadowColor={diag.is_healthy ? 'green' : 'pink'} className="overflow-hidden p-4 space-y-3">
                   <div className="flex items-start gap-3">
                     <img
@@ -234,7 +240,7 @@ export const Dashboard: React.FC = () => {
           </div>
 
           <Card shadowColor="teal" className="p-4 space-y-3">
-            {crops.length === 0 ? (
+            {safeCrops.length === 0 ? (
               <div className="text-center py-6 space-y-2">
                 <p className="text-xs font-bold text-zinc-500">No tienes cultivos registrados</p>
                 <Button
@@ -248,7 +254,7 @@ export const Dashboard: React.FC = () => {
               </div>
             ) : (
               <div className="space-y-2.5">
-                {crops.slice(0, 5).map((crop) => (
+                {safeCrops.slice(0, 5).map((crop) => (
                   <Link
                     key={crop.id}
                     to={`/crops/${crop.id}`}

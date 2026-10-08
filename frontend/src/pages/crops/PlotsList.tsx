@@ -10,6 +10,9 @@ import { Modal } from '../../components/ui/Modal';
 export const PlotsList: React.FC = () => {
   const { plots, crops, createPlot, createCrop } = useCropStore();
 
+  const safePlots = Array.isArray(plots) ? plots : [];
+  const safeCrops = Array.isArray(crops) ? crops : [];
+
   const [isPlotModalOpen, setIsPlotModalOpen] = useState(false);
   const [isCropModalOpen, setIsCropModalOpen] = useState(false);
 
@@ -124,12 +127,12 @@ export const PlotsList: React.FC = () => {
             variant="primary"
             size="md"
             onClick={() => {
-              if (plots.length > 0) {
-                setCropForm(prev => ({ ...prev, plot: plots[0].id.toString() }));
+              if (safePlots.length > 0) {
+                setCropForm(prev => ({ ...prev, plot: safePlots[0].id.toString() }));
               }
               setIsCropModalOpen(true);
             }}
-            disabled={plots.length === 0}
+            disabled={safePlots.length === 0}
           >
             <Plus className="w-4 h-4" />
             <span>Registrar Cultivo</span>
@@ -138,7 +141,7 @@ export const PlotsList: React.FC = () => {
       </div>
 
       {/* No Plots Banner */}
-      {plots.length === 0 && (
+      {safePlots.length === 0 && (
         <Card shadowColor="yellow" className="p-8 text-center space-y-4">
           <div className="inline-flex p-4 bg-[#FEF08A] rounded-2xl border-2 border-black">
             <Layers className="w-8 h-8 text-black" />
@@ -160,8 +163,8 @@ export const PlotsList: React.FC = () => {
 
       {/* Plots and nested Crops List */}
       <div className="space-y-6">
-        {plots.map((plot) => {
-          const plotCrops = crops.filter(c => c.plot === plot.id);
+        {safePlots.map((plot) => {
+          const plotCrops = safeCrops.filter(c => c.plot === plot.id);
 
           return (
             <Card key={plot.id} shadowColor="black" borderWidth="3" className="overflow-hidden">
@@ -371,7 +374,7 @@ export const PlotsList: React.FC = () => {
               className="w-full px-3.5 py-2 bg-[#FDFBF7] border-2 border-black rounded-xl text-sm font-bold focus:outline-none focus:bg-white shadow-neo-sm"
             >
               <option value="">Selecciona una parcela...</option>
-              {plots.map((p) => (
+              {safePlots.map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.name} ({p.location || 'Sin ubicación'})
                 </option>
