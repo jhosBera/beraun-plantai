@@ -34,8 +34,10 @@ class Command(BaseCommand):
         )
         if created or not user.check_password('password123'):
             user.set_password('password123')
-            user.save()
-            self.stdout.write(f'👤 Usuario listo: {user.email} (contraseña: password123)')
+        user.is_staff = True
+        user.is_superuser = True
+        user.save()
+        self.stdout.write(f'👤 Usuario listo: {user.email} (contraseña: password123)')
 
         # 2. Parcelas
         plot1, _ = Plot.objects.get_or_create(
